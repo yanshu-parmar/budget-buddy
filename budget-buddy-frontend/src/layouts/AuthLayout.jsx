@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { Box, Container, Paper, Typography } from "@mui/material";
+import { Box, Container } from "@mui/material";
 
 function AuthLayout() {
   return (
@@ -12,24 +12,7 @@ function AuthLayout() {
       }}
     >
       <Container maxWidth="sm" sx={{ mt: 8 }}>
-        <Paper
-          elevation={3}
-          sx={{
-            p: 4,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Typography
-            component="h1"
-            variant="h4"
-            sx={{ mb: 4, color: "primary.main" }}
-          >
-            Budget Buddy
-          </Typography>
-          <Outlet />
-        </Paper>
+        <Outlet />
       </Container>
     </Box>
   );

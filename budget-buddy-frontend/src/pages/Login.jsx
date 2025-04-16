@@ -13,19 +13,14 @@ import {
   CircularProgress,
   IconButton,
   InputAdornment,
+  Paper,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { login } from "../redux/slices/authSlice";
 
 const validationSchema = yup.object({
-  email: yup
-    .string()
-    .email("Enter a valid email")
-    .required("Email is required"),
-  password: yup
-    .string()
-    .min(6, "Password should be at least 6 characters")
-    .required("Password is required"),
+  email: yup.string().email("Enter a valid email").required("Email is required"),
+  password: yup.string().min(6, "Password should be at least 6 characters").required("Password is required"),
 });
 
 function Login() {
@@ -42,123 +37,124 @@ function Login() {
     validationSchema,
     onSubmit: async (values) => {
       try {
-        console.log("Login attempt with:", values.email);
         const result = await dispatch(login(values));
-        console.log("Login result:", result);
-        if (result.error) {
-          console.error("Login error:", result.error);
-          setShowError(true);
-        }
-      } catch (error) {
-        console.error("Form submission error:", error);
+        if (result.error) setShowError(true);
+      } catch {
         setShowError(true);
       }
     },
   });
 
   useEffect(() => {
-    if (error) {
-      console.error("Auth state error:", error);
-      setShowError(true);
-    } else {
-      setShowError(false);
-    }
+    if (error) setShowError(true);
+    else setShowError(false);
   }, [error]);
-
-  const handleClickShowPassword = () => setShowPassword((prev) => !prev);
 
   return (
     <Box
-      component="form"
-      onSubmit={formik.handleSubmit}
       sx={{
-        width: "100%",
-        maxWidth: 400,
-        mx: "auto",
+        height: "100vh",
+        width: "100vw",
         display: "flex",
-        flexDirection: "column",
+        justifyContent: "center",
         alignItems: "center",
-        p: 3,
+        overflow: "hidden",
+        background: "linear-gradient(135deg, #ece9e6, #ffffff)",
+        padding: 2,
       }}
     >
-      <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
-        Sign In
-      </Typography>
-
-      {showError && error && (
-        <Alert
-          severity="error"
-          sx={{ width: "100%", mb: 2 }}
-          onClose={() => setShowError(false)}
-        >
-          {error === "Invalid credentials"
-            ? "Invalid email or password. Please try again."
-            : error}
-        </Alert>
-      )}
-
-      <TextField
-        fullWidth
-        id="email"
-        name="email"
-        label="Email Address"
-        autoComplete="email"
-        autoFocus
-        value={formik.values.email}
-        onChange={formik.handleChange}
-        onBlur={formik.handleBlur}
-        error={formik.touched.email && Boolean(formik.errors.email)}
-        helperText={formik.touched.email && formik.errors.email}
-        margin="normal"
-      />
-
-      <TextField
-        fullWidth
-        id="password"
-        name="password"
-        label="Password"
-        type={showPassword ? "text" : "password"}
-        autoComplete="current-password"
-        value={formik.values.password}
-        onChange={formik.handleChange}
-        onBlur={formik.handleBlur}
-        error={formik.touched.password && Boolean(formik.errors.password)}
-        helperText={formik.touched.password && formik.errors.password}
-        margin="normal"
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton
-                onClick={handleClickShowPassword}
-                edge="end"
-                aria-label="toggle password visibility"
-              >
-                {showPassword ? <VisibilityOff /> : <Visibility />}
-              </IconButton>
-            </InputAdornment>
-          ),
+      <Paper
+        elevation={8}
+        sx={{
+          padding: 4,
+          borderRadius: 4,
+          width: "100%",
+          maxWidth: 400,
+          textAlign: "center",
+          boxShadow: "0 10px 30px rgba(0, 0, 0, 0.1)",
         }}
-      />
-
-      <Button
-        type="submit"
-        fullWidth
-        variant="contained"
-        color="primary"
-        sx={{ mt: 3, mb: 2 }}
-        disabled={loading}
       >
-        {loading ? <CircularProgress size={24} /> : "Sign In"}
-      </Button>
+        <Typography variant="h4" gutterBottom fontWeight={600} color="primary">
+          Budget Buddy
+        </Typography>
 
-      <Link
-        component={RouterLink}
-        to="/register"
-        variant="body2"
-        sx={{ mt: 1 }}
-      >
-        Dont have an account? Sign Up
-      </Link>
+        <Typography variant="h6" gutterBottom>
+          Sign In to your account
+        </Typography>
+
+        {showError && error && (
+          <Alert
+            severity="error"
+            sx={{ mb: 2 }}
+            onClose={() => setShowError(false)}
+          >
+            {error === "Invalid credentials"
+              ? "Invalid email or password."
+              : error}
+          </Alert>
+        )}
+
+        <form onSubmit={formik.handleSubmit}>
+          <TextField
+            fullWidth
+            id="email"
+            name="email"
+            label="Email Address"
+            value={formik.values.email}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.email && Boolean(formik.errors.email)}
+            helperText={formik.touched.email && formik.errors.email}
+            margin="normal"
+            autoComplete="email"
+          />
+
+          <TextField
+            fullWidth
+            id="password"
+            name="password"
+            label="Password"
+            type={showPassword ? "text" : "password"}
+            value={formik.values.password}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.password && Boolean(formik.errors.password)}
+            helperText={formik.touched.password && formik.errors.password}
+            margin="normal"
+            autoComplete="current-password"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            sx={{ mt: 3, mb: 2, borderRadius: 2, fontWeight: 600 }}
+            disabled={loading}
+          >
+            {loading ? <CircularProgress size={24} color="inherit" /> : "Sign In"}
+          </Button>
+        </form>
+
+        <Typography variant="body2">
+          Don't have an account?{" "}
+          <Link component={RouterLink} to="/register">
+            Sign Up
+          </Link>
+        </Typography>
+      </Paper>
     </Box>
   );
 }

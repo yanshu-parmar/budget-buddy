@@ -231,10 +231,10 @@ function Budgets() {
                 Period: {budget.period}
               </Typography>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                Total Budget: ${budget.totalBudget.toFixed(2)}
+                Total Budget: ₹{budget.totalBudget.toFixed(2)}
               </Typography>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                Total Spent: ${budget.totalSpent.toFixed(2)}
+                Total Spent: ₹{budget.totalSpent.toFixed(2)}
               </Typography>
 
               <Box sx={{ mt: 2 }}>
@@ -255,7 +255,7 @@ function Budgets() {
                         }}
                       >
                         <Typography variant="body2">
-                          {cat.category}: ${spent.toFixed(2)} / $
+                          {cat.category}: ₹{spent.toFixed(2)} / ₹
                           {cat.limit.toFixed(2)}
                         </Typography>
                         <Typography

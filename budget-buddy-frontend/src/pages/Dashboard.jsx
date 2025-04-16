@@ -119,7 +119,7 @@ const Dashboard = () => {
                 <Typography variant="h6">Total Income</Typography>
               </Box>
               <Typography variant="h4" color="success.main">
-                ${calculateTotalIncome().toFixed(2)}
+              ₹{calculateTotalIncome().toFixed(2)}
               </Typography>
             </CardContent>
           </Card>
@@ -133,7 +133,7 @@ const Dashboard = () => {
                 <Typography variant="h6">Total Expenses</Typography>
               </Box>
               <Typography variant="h4" color="error.main">
-                ${calculateTotalExpenses().toFixed(2)}
+              ₹{calculateTotalExpenses().toFixed(2)}
               </Typography>
             </CardContent>
           </Card>
@@ -150,7 +150,7 @@ const Dashboard = () => {
                 variant="h4"
                 color={calculateBalance() >= 0 ? "success.main" : "error.main"}
               >
-                ${calculateBalance().toFixed(2)}
+                ₹{calculateBalance().toFixed(2)}
               </Typography>
             </CardContent>
           </Card>
@@ -188,7 +188,7 @@ const Dashboard = () => {
                           : "error.main"
                       }
                     >
-                      ${transaction.amount.toFixed(2)}
+                      ₹{transaction.amount.toFixed(2)}
                     </Typography>
                   </ListItem>
                   <Divider />
@@ -220,7 +220,7 @@ const Dashboard = () => {
                                 color="text.secondary"
                                 component="span"
                               >
-                                ${status.spent.toFixed(2)} of $
+                                ₹{status.spent.toFixed(2)} of ₹
                                 {budget.totalBudget
                                   ? budget.totalBudget.toFixed(2)
                                   : "0.00"}
@@ -282,9 +282,9 @@ const Dashboard = () => {
                             {goal.name}
                           </Typography>
                           <Box display="flex" alignItems="center" mb={1}>
-                            <AttachMoneyIcon color="primary" sx={{ mr: 1 }} />
+                            {/* <AttachMoneyIcon color="primary" sx={{ mr: 1 }} /> */}
                             <Typography>
-                              ${goal.currentAmount.toFixed(2)} of $
+                            ₹{goal.currentAmount.toFixed(2)} of ₹
                               {goal.targetAmount.toFixed(2)}
                             </Typography>
                           </Box>

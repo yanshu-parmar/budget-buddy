@@ -249,13 +249,13 @@ function Transactions() {
       field: "amount",
       headerName: "Amount",
       width: 120,
-      valueFormatter: (params) => `$${params.value.toFixed(2)}`,
+      valueFormatter: (params) => `₹${params.value.toFixed(2)}`,
       renderCell: (params) => (
         <Typography
           color={params.row.type === "income" ? "success.main" : "error.main"}
           fontWeight="bold"
         >
-          ${params.value.toFixed(2)}
+          ₹{params.value.toFixed(2)}
         </Typography>
       ),
     },
@@ -343,7 +343,7 @@ function Transactions() {
                 <Typography variant="h6">Total Income</Typography>
               </Box>
               <Typography variant="h4" fontWeight="bold">
-                ${totals.income.toFixed(2)}
+              ₹{totals.income.toFixed(2)}
               </Typography>
             </CardContent>
           </Card>
@@ -362,7 +362,7 @@ function Transactions() {
                 <Typography variant="h6">Total Expenses</Typography>
               </Box>
               <Typography variant="h4" fontWeight="bold">
-                ${totals.expenses.toFixed(2)}
+              ₹{totals.expenses.toFixed(2)}
               </Typography>
             </CardContent>
           </Card>
@@ -381,7 +381,7 @@ function Transactions() {
                 <Typography variant="h6">Balance</Typography>
               </Box>
               <Typography variant="h4" fontWeight="bold">
-                ${totals.balance.toFixed(2)}
+              ₹{totals.balance.toFixed(2)}
               </Typography>
             </CardContent>
           </Card>
@@ -445,19 +445,19 @@ function Transactions() {
           </Typography>
           <Box>
             <Chip
-              label={`Income: $${totals.income.toFixed(2)}`}
+              label={`Income: ₹${totals.income.toFixed(2)}`}
               color="success"
               size="small"
               sx={{ mr: 1 }}
             />
             <Chip
-              label={`Expenses: $${totals.expenses.toFixed(2)}`}
+              label={`Expenses: ₹${totals.expenses.toFixed(2)}`}
               color="error"
               size="small"
               sx={{ mr: 1 }}
             />
             <Chip
-              label={`Balance: $${totals.balance.toFixed(2)}`}
+              label={`Balance: ₹${totals.balance.toFixed(2)}`}
               color={totals.balance >= 0 ? "success" : "error"}
               size="small"
             />
@@ -604,7 +604,7 @@ function Transactions() {
                   margin="normal"
                   InputProps={{
                     startAdornment: (
-                      <InputAdornment position="start">$</InputAdornment>
+                      <InputAdornment position="start">₹</InputAdornment>
                     ),
                   }}
                 />

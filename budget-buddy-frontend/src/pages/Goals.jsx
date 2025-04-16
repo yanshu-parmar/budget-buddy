@@ -601,7 +601,7 @@ function Goals() {
                           Target
                         </Typography>
                         <Typography variant="h6">
-                          ${goal.targetAmount.toLocaleString()}
+                        ₹{goal.targetAmount.toLocaleString()}
                         </Typography>
                       </Box>
                       <Box>
@@ -609,7 +609,7 @@ function Goals() {
                           Current
                         </Typography>
                         <Typography variant="h6">
-                          ${goal.currentAmount.toLocaleString()}
+                        ₹{goal.currentAmount.toLocaleString()}
                         </Typography>
                       </Box>
                       <Box>
@@ -617,7 +617,7 @@ function Goals() {
                           Remaining
                         </Typography>
                         <Typography variant="h6">
-                          $
+                        ₹
                           {(
                             goal.targetAmount - goal.currentAmount
                           ).toLocaleString()}
@@ -683,7 +683,7 @@ function Goals() {
                             {goal.milestones.map((milestone, index) => (
                               <ListItem key={index}>
                                 <ListItemText
-                                  primary={`$${milestone.amount.toLocaleString()} - ${
+                                  primary={`₹${milestone.amount.toLocaleString()} - ${
                                     milestone.description
                                   }`}
                                   secondary={format(
@@ -844,7 +844,7 @@ function Goals() {
                     formik.touched.targetAmount && formik.errors.targetAmount
                   }
                   InputProps={{
-                    startAdornment: <Typography sx={{ mr: 1 }}>$</Typography>,
+                    startAdornment: <Typography sx={{ mr: 1 }}>₹</Typography>,
                   }}
                 />
               </Grid>
@@ -865,7 +865,7 @@ function Goals() {
                     formik.touched.currentAmount && formik.errors.currentAmount
                   }
                   InputProps={{
-                    startAdornment: <Typography sx={{ mr: 1 }}>$</Typography>,
+                    startAdornment: <Typography sx={{ mr: 1 }}>₹</Typography>,
                   }}
                 />
               </Grid>
@@ -1015,7 +1015,7 @@ function Goals() {
                     milestoneFormik.errors.amount
                   }
                   InputProps={{
-                    startAdornment: <Typography sx={{ mr: 1 }}>$</Typography>,
+                    startAdornment: <Typography sx={{ mr: 1 }}>₹</Typography>,
                   }}
                 />
               </Grid>

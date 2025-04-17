@@ -3,24 +3,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link as RouterLink } from "react-router-dom";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-  Link,
-  Alert,
-  CircularProgress,
-  IconButton,
-  InputAdornment,
-  Paper,
-} from "@mui/material";
+import { Box, Button, TextField, Typography, Link, Alert, CircularProgress, IconButton, InputAdornment, Paper } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { login } from "../redux/slices/authSlice";
 
 const validationSchema = yup.object({
-  email: yup.string().email("Enter a valid email").required("Email is required"),
-  password: yup.string().min(6, "Password should be at least 6 characters").required("Password is required"),
+  email: yup
+    .string()
+    .email("Enter a valid email")
+    .required("Email is required"),
+  password: yup
+    .string()
+    .min(6, "Password should be at least 6 characters")
+    .required("Password is required"),
 });
 
 function Login() {
@@ -53,14 +48,17 @@ function Login() {
   return (
     <Box
       sx={{
-        height: "100vh",
-        width: "100vw",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        overflow: "hidden",
-        background: "linear-gradient(135deg, #ece9e6, #ffffff)",
-        padding: 2,
+        height: "100%",
+        width: "100%",
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: "linear-gradient(135deg, #1E88E5, #4CAF50)",
       }}
     >
       <Paper
@@ -74,12 +72,49 @@ function Login() {
           boxShadow: "0 10px 30px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <Typography variant="h4" gutterBottom fontWeight={600} color="primary">
+        {/* Logo */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center", 
+            justifyContent: "center",
+            mb: 3,
+          }}
+        >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "flex-end",
+            mr: 1,
+          }}
+        >
+        <Box
+          sx={{
+            width: 6,
+            height: 25,
+            backgroundColor: "#4CAF50",
+            borderRadius: "6px",
+            mr: 0.5,
+          }}
+        />
+        <Box
+          sx={{
+            width: 6,
+            height: 38,
+            backgroundColor: "#1E88E5",
+            borderRadius: "6px",
+          }}
+        />
+        </Box>
+        <Typography variant="h4" fontWeight={600} sx={{ color: "#1E293B" }}>
           Budget Buddy
         </Typography>
+    </Box>
+
 
         <Typography variant="h6" gutterBottom>
-          Sign In to your account
+          Login to your account
         </Typography>
 
         {showError && error && (
@@ -144,7 +179,11 @@ function Login() {
             sx={{ mt: 3, mb: 2, borderRadius: 2, fontWeight: 600 }}
             disabled={loading}
           >
-            {loading ? <CircularProgress size={24} color="inherit" /> : "Sign In"}
+            {loading ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : (
+              "Sign In"
+            )}
           </Button>
         </form>
 

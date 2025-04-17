@@ -19,6 +19,7 @@ import Budgets from "./pages/Budgets";
 import Goals from "./pages/Goals";
 import Reports from "./pages/Reports";
 import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -71,6 +72,9 @@ const theme = createTheme({
 function App() {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
 
+  // Define the admin email
+  const ADMIN_EMAIL = "admin@budgetbuddy.com";
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -118,10 +122,16 @@ function App() {
               path="/profile"
               element={isAuthenticated ? <Profile /> : <Navigate to="/login" />}
             />
+            <Route
+              path="/settings"
+              element={
+                isAuthenticated ? <Settings /> : <Navigate to="/login" />
+              }
+            />
           </Route>
 
-          {/* Admin routes */}
-          {user?.role === "admin" && (
+          {/* Admin routes - only accessible by the specific admin email */}
+          {user?.email === ADMIN_EMAIL && (
             <Route element={<MainLayout />}>
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/users" element={<UserManagement />} />

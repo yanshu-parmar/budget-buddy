@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState, useEffect } from "react";
 import {
   Box,
-  Paper,
+  Card,
+  CardContent,
   Typography,
   Table,
   TableBody,
@@ -10,82 +10,87 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TablePagination,
+  Paper,
   TextField,
   MenuItem,
   Grid,
-  CircularProgress,
   Chip,
+  CircularProgress,
+  Alert,
+  Pagination,
 } from "@mui/material";
 import { format } from "date-fns";
-import { fetchAuditLogs } from "../../redux/slices/adminSlice";
-
-const logTypes = [
-  "USER_LOGIN",
-  "USER_LOGOUT",
-  "USER_CREATE",
-  "USER_UPDATE",
-  "USER_DELETE",
-  "SETTINGS_UPDATE",
-  "TRANSACTION_CREATE",
-  "TRANSACTION_UPDATE",
-  "TRANSACTION_DELETE",
-  "BUDGET_CREATE",
-  "BUDGET_UPDATE",
-  "BUDGET_DELETE",
-  "GOAL_CREATE",
-  "GOAL_UPDATE",
-  "GOAL_DELETE",
-];
+import axios from "axios";
 
 const severityColors = {
-  INFO: "info",
-  WARNING: "warning",
-  ERROR: "error",
+  low: "success",
+  medium: "warning",
+  high: "error",
 };
 
-function AuditLogs() {
-  const dispatch = useDispatch();
-  const { logs, loading } = useSelector((state) => state.admin);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+const typeLabels = {
+  user: "User Action",
+  system: "System Event",
+  security: "Security Event",
+  error: "Error",
+};
+
+const AuditLogs = () => {
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
     type: "",
     severity: "",
     startDate: "",
     endDate: "",
+    search: "",
   });
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const fetchLogs = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("/api/admin/audit-logs", {
+        params: {
+          ...filters,
+          page,
+          limit: 10,
+        },
+      });
+      setLogs(response.data.logs);
+      setTotalPages(response.data.totalPages);
+      setLoading(false);
+    } catch (err) {
+      setError(err.response?.data?.message || "Error fetching audit logs");
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    dispatch(fetchAuditLogs(filters));
-  }, [dispatch, filters]);
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+    fetchLogs();
+  }, [filters, page]);
 
   const handleFilterChange = (field) => (event) => {
-    setFilters({
-      ...filters,
+    setFilters((prev) => ({
+      ...prev,
       [field]: event.target.value,
-    });
-    setPage(0);
+    }));
+    setPage(1);
   };
 
-  if (loading) {
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
+
+  if (loading && !logs.length) {
     return (
       <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="400px"
       >
         <CircularProgress />
       </Box>
@@ -93,68 +98,84 @@ function AuditLogs() {
   }
 
   return (
-    <Box sx={{ width: "100%", p: 3 }}>
-      <Typography variant="h5" gutterBottom>
+    <Box p={3}>
+      <Typography variant="h4" gutterBottom>
         Audit Logs
       </Typography>
 
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={3}>
-            <TextField
-              fullWidth
-              select
-              label="Log Type"
-              value={filters.type}
-              onChange={handleFilterChange("type")}
-            >
-              <MenuItem value="">All Types</MenuItem>
-              {logTypes.map((type) => (
-                <MenuItem key={type} value={type}>
-                  {type.replace(/_/g, " ")}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
 
-          <Grid item xs={12} md={3}>
-            <TextField
-              fullWidth
-              select
-              label="Severity"
-              value={filters.severity}
-              onChange={handleFilterChange("severity")}
-            >
-              <MenuItem value="">All Severities</MenuItem>
-              <MenuItem value="INFO">Info</MenuItem>
-              <MenuItem value="WARNING">Warning</MenuItem>
-              <MenuItem value="ERROR">Error</MenuItem>
-            </TextField>
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={3}>
+              <TextField
+                fullWidth
+                select
+                label="Type"
+                value={filters.type}
+                onChange={handleFilterChange("type")}
+              >
+                <MenuItem value="">All</MenuItem>
+                {Object.entries(typeLabels).map(([value, label]) => (
+                  <MenuItem key={value} value={value}>
+                    {label}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <TextField
+                fullWidth
+                select
+                label="Severity"
+                value={filters.severity}
+                onChange={handleFilterChange("severity")}
+              >
+                <MenuItem value="">All</MenuItem>
+                {Object.keys(severityColors).map((severity) => (
+                  <MenuItem key={severity} value={severity}>
+                    {severity.charAt(0).toUpperCase() + severity.slice(1)}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <TextField
+                fullWidth
+                type="date"
+                label="Start Date"
+                value={filters.startDate}
+                onChange={handleFilterChange("startDate")}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <TextField
+                fullWidth
+                type="date"
+                label="End Date"
+                value={filters.endDate}
+                onChange={handleFilterChange("endDate")}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Search"
+                value={filters.search}
+                onChange={handleFilterChange("search")}
+                placeholder="Search by user, action, or details..."
+              />
+            </Grid>
           </Grid>
-
-          <Grid item xs={12} md={3}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Start Date"
-              value={filters.startDate}
-              onChange={handleFilterChange("startDate")}
-              InputLabelProps={{ shrink: true }}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={3}>
-            <TextField
-              fullWidth
-              type="date"
-              label="End Date"
-              value={filters.endDate}
-              onChange={handleFilterChange("endDate")}
-              InputLabelProps={{ shrink: true }}
-            />
-          </Grid>
-        </Grid>
-      </Paper>
+        </CardContent>
+      </Card>
 
       <TableContainer component={Paper}>
         <Table>
@@ -166,43 +187,49 @@ function AuditLogs() {
               <TableCell>Action</TableCell>
               <TableCell>Details</TableCell>
               <TableCell>Severity</TableCell>
+              <TableCell>IP Address</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {logs
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((log) => (
-                <TableRow key={log._id}>
-                  <TableCell>
-                    {format(new Date(log.timestamp), "yyyy-MM-dd HH:mm:ss")}
-                  </TableCell>
-                  <TableCell>{log.type.replace(/_/g, " ")}</TableCell>
-                  <TableCell>{log.user}</TableCell>
-                  <TableCell>{log.action}</TableCell>
-                  <TableCell>{log.details}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label={log.severity}
-                      color={severityColors[log.severity]}
-                      size="small"
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
+            {logs.map((log) => (
+              <TableRow key={log._id}>
+                <TableCell>
+                  {format(new Date(log.timestamp), "yyyy-MM-dd HH:mm:ss")}
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={typeLabels[log.type]}
+                    color={log.type === "error" ? "error" : "default"}
+                    size="small"
+                  />
+                </TableCell>
+                <TableCell>{log.user?.email || "System"}</TableCell>
+                <TableCell>{log.action}</TableCell>
+                <TableCell>{log.details}</TableCell>
+                <TableCell>
+                  <Chip
+                    label={log.severity}
+                    color={severityColors[log.severity]}
+                    size="small"
+                  />
+                </TableCell>
+                <TableCell>{log.ipAddress}</TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
-        <TablePagination
-          rowsPerPageOptions={[10, 25, 50]}
-          component="div"
-          count={logs.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
       </TableContainer>
+
+      <Box display="flex" justifyContent="center" mt={3}>
+        <Pagination
+          count={totalPages}
+          page={page}
+          onChange={handlePageChange}
+          color="primary"
+        />
+      </Box>
     </Box>
   );
-}
+};
 
 export default AuditLogs;

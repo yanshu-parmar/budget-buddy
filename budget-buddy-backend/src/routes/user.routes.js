@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user.model');
-const { auth, checkRole } = require('../middleware/auth.middleware');
+const { auth, adminAuth } = require('../middleware/auth.middleware');
 
 // Get all users (admin only)
-router.get('/', auth, checkRole(['admin']), async (req, res) => {
+router.get('/', auth, adminAuth, async (req, res) => {
   try {
     const users = await User.find({}).select('-password');
     res.json(users);
@@ -14,7 +14,7 @@ router.get('/', auth, checkRole(['admin']), async (req, res) => {
 });
 
 // Get user by ID (admin only)
-router.get('/:id', auth, checkRole(['admin']), async (req, res) => {
+router.get('/:id', auth, adminAuth, async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
     if (!user) {
@@ -27,7 +27,7 @@ router.get('/:id', auth, checkRole(['admin']), async (req, res) => {
 });
 
 // Update user (admin only)
-router.patch('/:id', auth, checkRole(['admin']), async (req, res) => {
+router.patch('/:id', auth, adminAuth, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -50,7 +50,7 @@ router.patch('/:id', auth, checkRole(['admin']), async (req, res) => {
 });
 
 // Block/Unblock user (admin only)
-router.patch('/:id/status', auth, checkRole(['admin']), async (req, res) => {
+router.patch('/:id/status', auth, adminAuth, async (req, res) => {
   try {
     const { isActive } = req.body;
     const user = await User.findById(req.params.id);
@@ -72,7 +72,7 @@ router.patch('/:id/status', auth, checkRole(['admin']), async (req, res) => {
 });
 
 // Get user statistics (admin only)
-router.get('/stats/overview', auth, checkRole(['admin']), async (req, res) => {
+router.get('/stats/overview', auth, adminAuth, async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
     const activeUsers = await User.countDocuments({ isActive: true });
@@ -99,7 +99,7 @@ router.get('/stats/overview', auth, checkRole(['admin']), async (req, res) => {
 });
 
 // Search users (admin only)
-router.get('/search', auth, checkRole(['admin']), async (req, res) => {
+router.get('/search', auth, adminAuth, async (req, res) => {
   try {
     const { query } = req.query;
     const users = await User.find({

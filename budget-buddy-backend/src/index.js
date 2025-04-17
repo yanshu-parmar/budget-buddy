@@ -12,11 +12,19 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Routes
-app.use('/api/auth', require('./routes/auth.routes'));
-app.use('/api/users', require('./routes/user.routes'));
-app.use('/api/transactions', require('./routes/transaction.routes'));
-app.use('/api/budgets', require('./routes/budget.routes'));
-app.use('/api/goals', require('./routes/goal.routes'));
+const authRoutes = require('./routes/auth.routes');
+const userRoutes = require('./routes/user.routes');
+const transactionRoutes = require('./routes/transaction.routes');
+const budgetRoutes = require('./routes/budget.routes');
+const goalRoutes = require('./routes/goal.routes');
+const adminRoutes = require('./routes/admin.routes');
+
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/transactions', transactionRoutes);
+app.use('/api/budgets', budgetRoutes);
+app.use('/api/goals', goalRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -6,21 +6,25 @@ const auth = async (req, res, next) => {
     const token = req.header('Authorization')?.replace('Bearer ', '');
     
     if (!token) {
-      throw new Error('Authentication required');
+      return res.status(401).json({ message: 'Authentication required' });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findOne({ _id: decoded.userId, isActive: true });
+    const user = await User.findById(decoded.userId);
 
     if (!user) {
-      throw new Error('User not found or inactive');
+      return res.status(401).json({ message: 'User not found' });
+    }
+
+    if (user.status !== 'active') {
+      return res.status(403).json({ message: 'Account is not active' });
     }
 
     req.user = user;
     req.token = token;
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Please authenticate' });
+    res.status(401).json({ message: 'Invalid token' });
   }
 };
 
@@ -30,7 +34,7 @@ const adminAuth = async (req, res, next) => {
       return res.status(401).json({ message: 'Authentication required' });
     }
 
-    if (req.user.email !== 'admin@budgetbuddy.com') {
+    if (req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Admin access required' });
     }
 

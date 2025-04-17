@@ -9,9 +9,10 @@ function AuthLayout() {
         display: "flex",
         flexDirection: "column",
         backgroundColor: "background.default",
+        overflow: "auto",
       }}
     >
-      <Container maxWidth="sm" sx={{ mt: 8 }}>
+      <Container maxWidth="sm" sx={{ mt: 8, mb: 4 }}>
         <Outlet />
       </Container>
     </Box>

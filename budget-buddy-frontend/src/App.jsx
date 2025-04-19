@@ -24,7 +24,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AdminDashboard from "./pages/admin/Dashboard";
 import UserManagement from "./pages/admin/UserManagement";
-import Home from "./pages/Home";
+// import Home from "./pages/Home";
 
 // Theme configuration
 const theme = createTheme({
@@ -82,18 +82,18 @@ function App() {
       <Router>
         <Routes>
           {/* Public routes */}
-          <Route path="/" element={<Home />}></Route>
           <Route element={<AuthLayout />}>
+          {/* <Route path="/" element={<Home />}></Route> */}
             <Route
               path="/login"
-              element={!isAuthenticated ? <Login /> : <Navigate to="/" />}
+              element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" />}
             />
             <Route
               path="/register"
-              element={!isAuthenticated ? <Register /> : <Navigate to="/" />}
+              element={!isAuthenticated ? <Register /> : <Navigate to="/dashboard" />}
             />
           </Route>
-
+          
           {/* Protected routes */}
           <Route element={<MainLayout />}>
             <Route

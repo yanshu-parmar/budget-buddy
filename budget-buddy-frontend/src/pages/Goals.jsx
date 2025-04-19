@@ -710,7 +710,7 @@ function Goals() {
                         )}
                       </Box>
 
-                      <Box>
+                      {/* <Box>
                         <Typography variant="subtitle2" gutterBottom>
                           Notifications
                         </Typography>
@@ -745,7 +745,7 @@ function Goals() {
                             </Select>
                           </FormControl>
                         )}
-                      </Box>
+                      </Box> */}
                     </Collapse>
                   </CardContent>
                   <CardActions>
@@ -926,7 +926,7 @@ function Goals() {
                 />
               </Grid>
 
-              <Grid item xs={12}>
+              {/* <Grid item xs={12}>
                 <Typography variant="subtitle1" gutterBottom>
                   Notifications
                 </Typography>
@@ -962,7 +962,7 @@ function Goals() {
                     </Select>
                   </FormControl>
                 )}
-              </Grid>
+              </Grid> */}
             </Grid>
           </Box>
         </DialogContent>

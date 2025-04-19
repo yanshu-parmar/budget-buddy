@@ -19,7 +19,7 @@ const Home = () => {
         backgroundColor: "#FFFFFF",
         display: "flex",
         flexDirection: "column",
-        overflow: "hidden", // ✅ Prevent scrolling
+        overflow: "hidden", 
       }}
     >
       {/* Header */}
@@ -28,7 +28,7 @@ const Home = () => {
           position: "fixed",
           top: 0,
           left: 0,
-          width: "100%",
+          width: "100vw",
           backgroundColor: "#FFFFFF",
           padding: "20px 40px",
           borderBottom: "1px solid #E2E8F0",
@@ -112,9 +112,9 @@ const Home = () => {
               textTransform: "none",
               "&:hover": { backgroundColor: "#2B6CB0" },
             }}
-            onClick={() => navigate("/signup")}
+            onClick={() => navigate("/register")}
           >
-            Sign Up
+            Register
           </Button>
         </Box>
       </Box>
@@ -124,7 +124,7 @@ const Home = () => {
         sx={{
           mt: "100px",
           flexGrow: 1,
-          overflowY: "auto", // Optional: Enable internal scroll without body scroll
+          overflowY: "hidden"
         }}
       >
         {/* Hero Section */}
@@ -159,7 +159,7 @@ const Home = () => {
               <Button
                 variant="contained"
                 sx={{
-                  backgroundColor: "green",
+                  backgroundColor: "#4CAF50",
                   color: "#FFFFFF",
                   fontFamily: "'Montserrat', sans-serif",
                   fontWeight: 600,
@@ -216,24 +216,24 @@ const Home = () => {
                 {
                   icon: (
                     <AccountBalanceWallet
-                      sx={{ fontSize: 40, color: "#3182CE" }}
+                      sx={{ fontSize: 40, color: "#4CAF50" }}
                     />
                   ),
                   title: "Expense Tracking",
                   desc: "Monitor all your daily transactions in one place and stay on top of your spending.",
                 },
                 {
-                  icon: <BarChart sx={{ fontSize: 40, color: "#3182CE" }} />,
+                  icon: <BarChart sx={{ fontSize: 40, color: "#4CAF50" }} />,
                   title: "Budget Planning",
                   desc: "Set budgets for different categories and keep track of your expenses effortlessly.",
                 },
                 {
-                  icon: <TrendingUp sx={{ fontSize: 40, color: "#3182CE" }} />,
+                  icon: <TrendingUp sx={{ fontSize: 40, color: "#4CAF50" }} />,
                   title: "Financial Goals",
                   desc: "Plan and achieve your financial goals by tracking progress in real-time.",
                 },
                 {
-                  icon: <Lock sx={{ fontSize: 40, color: "#3182CE" }} />,
+                  icon: <Lock sx={{ fontSize: 40, color: "#4CAF50" }} />,
                   title: "Secure & Private",
                   desc: "Your financial data is safe with our industry-standard security measures.",
                 },
@@ -304,7 +304,7 @@ const Home = () => {
                   <Box
                     sx={{ display: "flex", alignItems: "center", gap: 1 }}
                   >
-                    <CheckCircle sx={{ color: "#3182CE" }} />
+                    <CheckCircle sx={{ color: "#4CAF50" }} />
                     <Typography variant="body1" sx={{ fontWeight: 500 }}>
                       {feature}
                     </Typography>
@@ -357,7 +357,7 @@ const Home = () => {
                   <Box
                     sx={{ display: "flex", alignItems: "center", gap: 1 }}
                   >
-                    <CheckCircle sx={{ color: "#3182CE" }} />
+                    <CheckCircle sx={{ color: "#4CAF50" }} />
                     <Typography variant="body1" sx={{ fontWeight: 500 }}>
                       {feature}
                     </Typography>
@@ -376,6 +376,7 @@ const Home = () => {
           borderTop: "1px solid #E2E8F0",
           textAlign: "center",
           backgroundColor: "#3182CE",
+          background: "linear-gradient(135deg, #4CAF50, #1E88E5)",
         }}
       >
         <Typography

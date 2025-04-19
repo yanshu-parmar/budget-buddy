@@ -105,7 +105,7 @@ const Dashboard = () => {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" gutterBottom textAlign="center">
         Dashboard
       </Typography>
 
@@ -114,7 +114,7 @@ const Dashboard = () => {
         <Grid item xs={12} md={4}>
           <Card>
             <CardContent>
-              <Box display="flex" alignItems="center" mb={1}>
+              <Box display="flex" alignItems="center" mb={1} >
                 <TrendingUpIcon color="success" sx={{ mr: 1 }} />
                 <Typography variant="h6">Total Income</Typography>
               </Box>
@@ -194,69 +194,6 @@ const Dashboard = () => {
                   <Divider />
                 </React.Fragment>
               ))}
-            </List>
-          </Paper>
-        </Grid>
-
-        {/* Budget Overview */}
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Budget Overview
-            </Typography>
-            <List>
-              {budgets && budgets.length > 0 ? (
-                budgets.map((budget) => {
-                  const status = getBudgetStatus(budget);
-                  return (
-                    <React.Fragment key={budget._id}>
-                      <ListItem>
-                        <ListItemText
-                          primary={budget.name || "Unnamed Budget"}
-                          secondary={
-                            <Box component="span">
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                component="span"
-                              >
-                                ₹{status.spent.toFixed(2)} of ₹
-                                {budget.totalBudget
-                                  ? budget.totalBudget.toFixed(2)
-                                  : "0.00"}
-                              </Typography>
-                              <LinearProgress
-                                variant="determinate"
-                                value={status.percentage}
-                                color={
-                                  status.isOverBudget ? "error" : "primary"
-                                }
-                                sx={{ mt: 1 }}
-                              />
-                            </Box>
-                          }
-                        />
-                        {status.isOverBudget && (
-                          <Tooltip title="Over Budget">
-                            <IconButton color="error" size="small">
-                              <WarningIcon />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                      </ListItem>
-                      <Divider />
-                    </React.Fragment>
-                  );
-                })
-              ) : (
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ p: 2 }}
-                >
-                  No budgets found. Create a budget to track your spending.
-                </Typography>
-              )}
             </List>
           </Paper>
         </Grid>

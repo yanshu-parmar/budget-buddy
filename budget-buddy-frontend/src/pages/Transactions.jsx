@@ -307,7 +307,7 @@ function Transactions() {
   ];
 
   return (
-    <Box sx={{ width: "100%", p: 3 }}>
+    <Box sx={{ width: "80vw", p: 3 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
         <Typography variant="h5" fontWeight="bold">
           Transactions
@@ -431,41 +431,8 @@ function Transactions() {
             </FormControl>
           </Box>
         </Box>
-        <Divider sx={{ mb: 2 }} />
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Typography variant="body2" color="text.secondary">
-            Showing {getFilteredTransactions().length} of {transactions.length}{" "}
-            transactions
-          </Typography>
-          <Box>
-            <Chip
-              label={`Income: ₹${totals.income.toFixed(2)}`}
-              color="success"
-              size="small"
-              sx={{ mr: 1 }}
-            />
-            <Chip
-              label={`Expenses: ₹${totals.expenses.toFixed(2)}`}
-              color="error"
-              size="small"
-              sx={{ mr: 1 }}
-            />
-            <Chip
-              label={`Balance: ₹${totals.balance.toFixed(2)}`}
-              color={totals.balance >= 0 ? "success" : "error"}
-              size="small"
-            />
-          </Box>
-        </Box>
-      </Paper>
 
-      <Paper sx={{ height: 500, width: "100%" }}>
+        <Paper sx={{ height: 500, width: "100%" }}>
         {loading ? (
           <Box
             sx={{
@@ -529,6 +496,9 @@ function Transactions() {
           />
         )}
       </Paper>
+      </Paper>
+
+      
 
       <Dialog
         open={openDialog}

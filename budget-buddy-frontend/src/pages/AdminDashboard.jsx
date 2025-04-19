@@ -154,7 +154,7 @@ const AdminDashboard = () => {
         <Grid item xs={12} sm={6} md={3}>
           <StatCard
             title="Total Amount"
-            value={`$${stats.totalAmount.toLocaleString()}`}
+            value={`₹${stats.totalAmount.toLocaleString()}`}
             icon={<AttachMoneyIcon />}
             color={theme.palette.warning.main}
           />

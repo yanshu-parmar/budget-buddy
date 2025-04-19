@@ -30,6 +30,11 @@ import {
   deleteBudget,
 } from "../redux/slices/budgetSlice";
 import { fetchTransactions } from "../redux/slices/transactionSlice";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+
+const COLORS = ["#4caf50", "#e0e0e0"];
+const categories = ["Food", "Transport", "Housing", "Utilities", "Entertainment", "Other"];
+const periods = ["weekly", "monthly", "yearly"];
 
 const validationSchema = yup.object({
   name: yup.string().required("Name is required"),
@@ -51,16 +56,6 @@ const validationSchema = yup.object({
   ),
 });
 
-const categories = [
-  "Food",
-  "Transport",
-  "Housing",
-  "Utilities",
-  "Entertainment",
-  "Other",
-];
-const periods = ["weekly", "monthly", "yearly"];
-
 function Budgets() {
   const dispatch = useDispatch();
   const { budgets, loading } = useSelector((state) => state.budgets);
@@ -74,6 +69,29 @@ function Budgets() {
     dispatch(fetchBudgets());
     dispatch(fetchTransactions());
   }, [dispatch]);
+
+  const calculateSpent = (category, startDate, endDate) => {
+    return transactions
+      .filter(
+        (t) =>
+          t.category === category &&
+          t.type === "expense" &&
+          new Date(t.date) >= new Date(startDate) &&
+          new Date(t.date) <= new Date(endDate)
+      )
+      .reduce((sum, t) => sum + t.amount, 0);
+  };
+
+  const calculateTotalSpent = (budget) => {
+    return transactions
+      .filter(
+        (t) =>
+          t.type === "expense" &&
+          new Date(t.date) >= new Date(budget.startDate) &&
+          new Date(t.date) <= new Date(budget.endDate)
+      )
+      .reduce((sum, t) => sum + t.amount, 0);
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -93,7 +111,6 @@ function Budgets() {
     validationSchema,
     onSubmit: async (values) => {
       try {
-        // Convert date strings to Date objects
         const budgetData = {
           ...values,
           startDate: new Date(values.startDate).toISOString(),
@@ -105,12 +122,12 @@ function Budgets() {
         } else {
           await dispatch(addBudget(budgetData));
         }
+
         setSuccess(true);
         setError(null);
         setTimeout(() => setSuccess(false), 3000);
         handleCloseDialog();
       } catch (error) {
-        console.error("Failed to save budget:", error);
         setError(error.message || "Failed to save budget");
         setSuccess(false);
       }
@@ -150,279 +167,133 @@ function Budgets() {
       try {
         await dispatch(deleteBudget(id));
         setSuccess(true);
-        setError(null);
         setTimeout(() => setSuccess(false), 3000);
       } catch (error) {
-        console.error("Failed to delete budget:", error);
         setError(error.message || "Failed to delete budget");
         setSuccess(false);
       }
     }
   };
 
-  const calculateSpent = (category) => {
-    const currentDate = new Date();
-    const startOfMonth = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      1
-    );
-
-    return transactions
-      .filter(
-        (t) =>
-          t.category === category &&
-          t.type === "expense" &&
-          new Date(t.date) >= startOfMonth
-      )
-      .reduce((sum, t) => sum + t.amount, 0);
-  };
-
   return (
-    <Box sx={{ width: "100%", p: 3 }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
+    <Box sx={{ width: "80vw", p: 3 }}>
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mb: 3 }}>
         <Typography variant="h5">Budget Management</Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenDialog()}
-        >
-          Add Budget
-        </Button>
+        <Box sx={{ position: "absolute", right: 30 }}>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
+            Add Budget
+          </Button>
+        </Box>
       </Box>
 
-      {success && (
-        <Alert severity="success" sx={{ mb: 3 }}>
-          {editingBudget
-            ? "Budget updated successfully!"
-            : "Budget added successfully!"}
-        </Alert>
-      )}
+      {success && <Alert severity="success" sx={{ mb: 3 }}>{editingBudget ? "Budget updated successfully!" : "Budget added successfully!"}</Alert>}
+      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
-        </Alert>
-      )}
+      <Grid container spacing={2}>
+        {budgets.map((budget) => {
+          const totalSpent = calculateTotalSpent(budget);
+          const chartData = [
+            { name: "Spent", value: Math.min(totalSpent, budget.totalBudget) },
+            { name: "Remaining", value: Math.max(budget.totalBudget - totalSpent, 0) },
+          ];
 
-      <Grid container spacing={3}>
-        {budgets.map((budget) => (
-          <Grid item xs={12} md={6} key={budget._id}>
-            <Paper sx={{ p: 3 }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  mb: 2,
-                }}
-              >
-                <Typography variant="h6">{budget.name}</Typography>
-                <Box>
-                  <IconButton onClick={() => handleOpenDialog(budget)}>
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton onClick={() => handleDelete(budget._id)}>
-                    <DeleteIcon />
-                  </IconButton>
+          return (
+            <Grid item xs={12} md={6} key={budget._id}>
+              <Paper sx={{ p: 3 }}>
+                <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+                  <Typography variant="h6">{budget.name}</Typography>
+                  <Box>
+                    <IconButton onClick={() => handleOpenDialog(budget)}><EditIcon sx={{ color: "#1976d2" }} /></IconButton>
+                    <IconButton onClick={() => handleDelete(budget._id)}><DeleteIcon sx={{ color: "#f44336" }} /></IconButton>
+                  </Box>
                 </Box>
-              </Box>
 
-              <Typography variant="body2" color="text.secondary" gutterBottom>
-                Period: {budget.period}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
-                Total Budget: ₹{budget.totalBudget.toFixed(2)}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
-                Total Spent: ₹{budget.totalSpent.toFixed(2)}
-              </Typography>
+                <Typography variant="body2" color="text.secondary">Period: {budget.period}</Typography>
+                <Typography variant="body2" color="text.secondary">Total Budget: ₹{budget.totalBudget.toFixed(2)}</Typography>
+                <Typography variant="body2" color="text.secondary">Total Spent: ₹{totalSpent.toFixed(2)}</Typography>
 
-              <Box sx={{ mt: 2 }}>
-                <Typography variant="subtitle2" gutterBottom>
-                  Category Breakdown:
-                </Typography>
-                {budget.categories.map((cat) => {
-                  const spent = calculateSpent(cat.category);
-                  const progress = (spent / cat.limit) * 100;
-
-                  return (
-                    <Box key={cat.category} sx={{ mb: 2 }}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          mb: 1,
-                        }}
+                {budget.totalBudget > 0 ? (
+                  <ResponsiveContainer width="100%" height={200}>
+                    <PieChart>
+                      <Pie
+                        data={chartData}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={60}
+                        innerRadius={40}
+                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                       >
-                        <Typography variant="body2">
-                          {cat.category}: ₹{spent.toFixed(2)} / ₹
-                          {cat.limit.toFixed(2)}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          color={progress > 100 ? "error" : "text.secondary"}
-                        >
-                          {progress.toFixed(1)}%
-                        </Typography>
+                        {COLORS.map((color, index) => (<Cell key={`cell-${index}`} fill={color} />))}
+                      </Pie>
+                      <Tooltip formatter={(value) => `₹${value.toFixed(2)}`} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <Typography variant="body2" color="text.secondary" mt={2}>
+                    Cannot show chart: Total budget is ₹0.
+                  </Typography>
+                )}
+
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="subtitle2" gutterBottom>Category Breakdown:</Typography>
+                  {budget.categories.map((cat) => {
+                    const spent = calculateSpent(cat.category, budget.startDate, budget.endDate);
+                    const progress = (spent / cat.limit) * 100;
+
+                    return (
+                      <Box key={cat.category} sx={{ mb: 2 }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+                          <Typography variant="body2">{cat.category}: ₹{spent.toFixed(2)} / ₹{cat.limit.toFixed(2)}</Typography>
+                          <Typography variant="body2" color={progress > 100 ? "error" : "text.secondary"}>{progress.toFixed(1)}%</Typography>
+                        </Box>
+                        <LinearProgress
+                          variant="determinate"
+                          value={Math.min(progress, 100)}
+                          sx={{ height: 8, borderRadius: 4, backgroundColor: "#e0e0e0", "& .MuiLinearProgress-bar": { backgroundColor: progress > 100 ? "error.main" : "primary.main" } }}
+                        />
                       </Box>
-                      <LinearProgress
-                        variant="determinate"
-                        value={Math.min(progress, 100)}
-                        sx={{
-                          height: 8,
-                          borderRadius: 4,
-                          backgroundColor: "#e0e0e0",
-                          "& .MuiLinearProgress-bar": {
-                            backgroundColor:
-                              progress > 100 ? "error.main" : "primary.main",
-                          },
-                        }}
-                      />
-                    </Box>
-                  );
-                })}
-              </Box>
-            </Paper>
-          </Grid>
-        ))}
+                    );
+                  })}
+                </Box>
+              </Paper>
+            </Grid>
+          );
+        })}
       </Grid>
 
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>
-          {editingBudget ? "Edit Budget" : "Add Budget"}
-        </DialogTitle>
+      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+        <DialogTitle>{editingBudget ? "Edit Budget" : "Add Budget"}</DialogTitle>
         <form onSubmit={formik.handleSubmit}>
           <DialogContent>
-            <TextField
-              fullWidth
-              name="name"
-              label="Budget Name"
-              value={formik.values.name}
-              onChange={formik.handleChange}
-              error={formik.touched.name && Boolean(formik.errors.name)}
-              helperText={formik.touched.name && formik.errors.name}
-              margin="normal"
-            />
-
-            <TextField
-              fullWidth
-              select
-              name="period"
-              label="Period"
-              value={formik.values.period}
-              onChange={formik.handleChange}
-              error={formik.touched.period && Boolean(formik.errors.period)}
-              helperText={formik.touched.period && formik.errors.period}
-              margin="normal"
-            >
-              {periods.map((period) => (
-                <MenuItem key={period} value={period}>
-                  {period.charAt(0).toUpperCase() + period.slice(1)}
-                </MenuItem>
-              ))}
+            <TextField fullWidth name="name" label="Budget Name" value={formik.values.name} onChange={formik.handleChange} error={formik.touched.name && Boolean(formik.errors.name)} helperText={formik.touched.name && formik.errors.name} margin="normal" />
+            <TextField fullWidth select name="period" label="Period" value={formik.values.period} onChange={formik.handleChange} error={formik.touched.period && Boolean(formik.errors.period)} helperText={formik.touched.period && formik.errors.period} margin="normal">
+              {periods.map((period) => (<MenuItem key={period} value={period}>{period.charAt(0).toUpperCase() + period.slice(1)}</MenuItem>))}
             </TextField>
+            <TextField fullWidth name="startDate" label="Start Date" type="date" value={formik.values.startDate} onChange={formik.handleChange} error={formik.touched.startDate && Boolean(formik.errors.startDate)} helperText={formik.touched.startDate && formik.errors.startDate} margin="normal" InputLabelProps={{ shrink: true }} />
+            <TextField fullWidth name="endDate" label="End Date" type="date" value={formik.values.endDate} onChange={formik.handleChange} error={formik.touched.endDate && Boolean(formik.errors.endDate)} helperText={formik.touched.endDate && formik.errors.endDate} margin="normal" InputLabelProps={{ shrink: true }} />
+            <TextField fullWidth name="totalBudget" label="Total Budget" type="number" value={formik.values.totalBudget} onChange={formik.handleChange} error={formik.touched.totalBudget && Boolean(formik.errors.totalBudget)} helperText={formik.touched.totalBudget && formik.errors.totalBudget} margin="normal" />
 
-            <TextField
-              fullWidth
-              name="startDate"
-              label="Start Date"
-              type="date"
-              value={formik.values.startDate}
-              onChange={formik.handleChange}
-              error={
-                formik.touched.startDate && Boolean(formik.errors.startDate)
-              }
-              helperText={formik.touched.startDate && formik.errors.startDate}
-              margin="normal"
-              InputLabelProps={{ shrink: true }}
-            />
-
-            <TextField
-              fullWidth
-              name="endDate"
-              label="End Date"
-              type="date"
-              value={formik.values.endDate}
-              onChange={formik.handleChange}
-              error={formik.touched.endDate && Boolean(formik.errors.endDate)}
-              helperText={formik.touched.endDate && formik.errors.endDate}
-              margin="normal"
-              InputLabelProps={{ shrink: true }}
-            />
-
-            <TextField
-              fullWidth
-              name="totalBudget"
-              label="Total Budget"
-              type="number"
-              value={formik.values.totalBudget}
-              onChange={formik.handleChange}
-              error={
-                formik.touched.totalBudget && Boolean(formik.errors.totalBudget)
-              }
-              helperText={
-                formik.touched.totalBudget && formik.errors.totalBudget
-              }
-              margin="normal"
-            />
-
-            <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
-              Category Limits
-            </Typography>
-
+            <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>Category Limits</Typography>
             {formik.values.categories.map((cat, index) => (
               <Box key={index} sx={{ display: "flex", gap: 2, mb: 1 }}>
-                <TextField
-                  fullWidth
-                  select
-                  name={`categories.${index}.category`}
-                  label="Category"
-                  value={cat.category}
-                  onChange={formik.handleChange}
-                  margin="normal"
-                >
-                  {categories.map((category) => (
-                    <MenuItem key={category} value={category}>
-                      {category}
-                    </MenuItem>
-                  ))}
+                <TextField fullWidth select name={`categories.${index}.category`} label="Category" value={cat.category} onChange={formik.handleChange} margin="normal">
+                  {categories.map((category) => (<MenuItem key={category} value={category}>{category}</MenuItem>))}
                 </TextField>
-
-                <TextField
-                  fullWidth
-                  name={`categories.${index}.limit`}
-                  label="Limit"
-                  type="number"
-                  value={cat.limit}
-                  onChange={formik.handleChange}
-                  margin="normal"
-                />
+                <TextField fullWidth name={`categories.${index}.limit`} label="Limit" type="number" value={cat.limit} onChange={formik.handleChange} margin="normal" />
               </Box>
             ))}
 
-            <Button
-              variant="outlined"
-              onClick={() => {
-                formik.setFieldValue("categories", [
-                  ...formik.values.categories,
-                  { category: "", limit: "" },
-                ]);
-              }}
-              sx={{ mt: 1 }}
-            >
+            <Button variant="outlined" onClick={() => {
+              formik.setFieldValue("categories", [...formik.values.categories, { category: "", limit: "" }]);
+            }} sx={{ mt: 1 }}>
               Add Category
             </Button>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseDialog}>Cancel</Button>
-            <Button type="submit" variant="contained">
-              {editingBudget ? "Update" : "Add"}
-            </Button>
+            <Button type="submit" variant="contained">{editingBudget ? "Update" : "Add"}</Button>
           </DialogActions>
         </form>
       </Dialog>

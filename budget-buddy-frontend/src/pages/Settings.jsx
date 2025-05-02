@@ -1,79 +1,57 @@
 import React, { useState, useEffect } from "react";
 import {
   Box,
-  Paper,
   Typography,
   Grid,
-  Divider,
-  Button,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
-  Snackbar,
-  Alert,
-  CircularProgress,
   Card,
   CardContent,
   CardHeader,
-  IconButton,
-  Tooltip,
-  alpha,
-  Select,
-  MenuItem,
+  Divider,
+  Avatar,
+  Snackbar,
+  Alert,
   FormControl,
   InputLabel,
-  Avatar,
+  Select,
+  MenuItem,
+  Button,
   CssBaseline,
 } from "@mui/material";
-import {
-  AttachMoney,
-  Save as SaveIcon,
-  Refresh as RefreshIcon,
-} from "@mui/icons-material";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ThemeProvider, createTheme, alpha } from "@mui/material/styles";
+import { AttachMoney, Save as SaveIcon } from "@mui/icons-material";
 
 const Settings = () => {
-  // Load settings from localStorage
+  // Load settings from localStorage or use default
   const loadSettings = () => {
     try {
-      const savedSettings = localStorage.getItem("userSettings");
-      if (savedSettings) {
-        return JSON.parse(savedSettings);
-      }
-    } catch (error) {
-      console.error("Error loading settings:", error);
+      const saved = localStorage.getItem("userSettings");
+      return saved ? JSON.parse(saved) : getDefaultSettings();
+    } catch {
+      return getDefaultSettings();
     }
-
-    // Default settings
-    return {
-      appearance: {
-        darkMode: false,
-        showCharts: true,
-      },
-      currency: "USD",
-    };
   };
 
-  // Settings state
-  const [settings, setSettings] = useState(loadSettings);
+  const getDefaultSettings = () => ({
+    appearance: {
+      darkMode: false,
+      showCharts: true,
+    },
+    currency: "USD",
+  });
 
+  const [settings, setSettings] = useState(loadSettings);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success",
   });
 
-  // Create a theme based on the dark mode setting
-  const appTheme = createTheme({
+  // Create MUI theme
+  const theme = createTheme({
     palette: {
       mode: settings.appearance.darkMode ? "dark" : "light",
-      primary: {
-        main: "#1976d2",
-      },
-      secondary: {
-        main: "#dc004e",
-      },
+      primary: { main: "#1976d2" },
+      secondary: { main: "#dc004e" },
       background: {
         default: settings.appearance.darkMode ? "#121212" : "#f5f5f5",
         paper: settings.appearance.darkMode ? "#1e1e1e" : "#ffffff",
@@ -81,46 +59,29 @@ const Settings = () => {
     },
   });
 
-  // Apply settings when component mounts or settings change
+  // Save settings on change
   useEffect(() => {
-    // Store settings in localStorage for persistence
     localStorage.setItem("userSettings", JSON.stringify(settings));
-
-    // Apply dark mode by updating the document's color scheme
-    if (settings.appearance.darkMode) {
-      document.documentElement.setAttribute("data-theme", "dark");
-      document.body.style.backgroundColor = "#121212";
-      document.body.style.color = "#ffffff";
-    } else {
-      document.documentElement.setAttribute("data-theme", "light");
-      document.body.style.backgroundColor = "#f5f5f5";
-      document.body.style.color = "#000000";
-    }
+    document.body.style.backgroundColor = theme.palette.background.default;
+    document.body.style.color = settings.appearance.darkMode ? "#fff" : "#000";
   }, [settings]);
 
-  const handleSelect = (setting, value) => {
+  const handleSelectChange = (field, value) => {
     setSettings((prev) => ({
       ...prev,
-      [setting]: value,
+      [field]: value,
     }));
   };
 
   const handleSave = async () => {
     try {
-      // Simulate API call with a timeout
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Save to localStorage
-      localStorage.setItem("userSettings", JSON.stringify(settings));
-
-      // Show success message
+      await new Promise((res) => setTimeout(res, 1000)); // Simulate API
       setSnackbar({
         open: true,
         message: "Settings saved successfully!",
         severity: "success",
       });
-    } catch (error) {
-      // Show error message
+    } catch {
       setSnackbar({
         open: true,
         message: "Failed to save settings. Please try again.",
@@ -129,29 +90,27 @@ const Settings = () => {
     }
   };
 
-  const handleCloseSnackbar = () => {
+  const handleCloseSnackbar = () =>
     setSnackbar((prev) => ({ ...prev, open: false }));
-  };
 
   return (
-    <ThemeProvider theme={appTheme}>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box>
+      <Box maxWidth="700px" mx="auto" px={3} py={4}>
         <Typography variant="h4" gutterBottom>
           Settings
         </Typography>
 
-        <Grid container spacing={3}>
-          {/* Currency Settings */}
-          <Grid item xs={12} md={6}>
+        <Grid container spacing={4}>
+          <Grid item xs={12}>
             <Card elevation={3} sx={{ borderRadius: 2 }}>
               <CardHeader
                 title="Currency"
                 avatar={
                   <Avatar
                     sx={{
-                      bgcolor: alpha(appTheme.palette.info.main, 0.1),
-                      color: appTheme.palette.info.main,
+                      bgcolor: alpha(theme.palette.info.main, 0.1),
+                      color: theme.palette.info.main,
                     }}
                   >
                     <AttachMoney />
@@ -160,29 +119,20 @@ const Settings = () => {
               />
               <Divider />
               <CardContent>
-                <List>
-                  <ListItem>
-                    <ListItemText
-                      primary="Currency"
-                      secondary="Select your preferred currency"
-                    />
-                    <ListItemSecondaryAction>
-                      <FormControl fullWidth>
-                        <InputLabel>Currency</InputLabel>
-                        <Select
-                          value={settings.currency}
-                          label="Currency"
-                          onChange={(e) =>
-                            handleSelect("currency", e.target.value)
-                          }
-                        >
-                          <MenuItem value="USD">USD ($)</MenuItem>
-                          <MenuItem value="INR">INR (₹)</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </ListItemSecondaryAction>
-                  </ListItem>
-                </List>
+                <FormControl fullWidth>
+                  <InputLabel>Currency</InputLabel>
+                  <Select
+                    value={settings.currency}
+                    label="Currency"
+                    onChange={(e) =>
+                      handleSelectChange("currency", e.target.value)
+                    }
+                  >
+                    <MenuItem value="USD">USD ($)</MenuItem>
+                    <MenuItem value="INR">INR (₹)</MenuItem>
+                    {/* Add more currencies if needed */}
+                  </Select>
+                </FormControl>
               </CardContent>
             </Card>
           </Grid>
@@ -205,8 +155,8 @@ const Settings = () => {
           onClose={handleCloseSnackbar}
         >
           <Alert
-            onClose={handleCloseSnackbar}
             severity={snackbar.severity}
+            onClose={handleCloseSnackbar}
             sx={{ width: "100%" }}
           >
             {snackbar.message}
